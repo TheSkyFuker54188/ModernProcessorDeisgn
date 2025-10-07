@@ -1,0 +1,3 @@
+Time resolution is 1 ps
+SUMMARY: 256 vectors tested, NO mismatches. PASS.
+$finish called at time : 2560 ns : File "D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_1/project_1.srcs/sim_1/new/adder_tb.v" Line 52
