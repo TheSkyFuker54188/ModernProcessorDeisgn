@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="adder_tb_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="adder_tb" />
+            <top_module name="glbl" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="2,560.001 ns"></ZoomEndTime>
+      <Cursor1Time time="2,559.999 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="533"></NameColumnWidth>
+      <ValueColumnWidth column_width="259"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="16" />
+   <wvobject fp_name="/adder_tb/a" type="array">
+      <obj_property name="ElementShortName">a[31:0]</obj_property>
+      <obj_property name="ObjectShortName">a[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/adder_tb/b" type="array">
+      <obj_property name="ElementShortName">b[31:0]</obj_property>
+      <obj_property name="ObjectShortName">b[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/adder_tb/sum" type="array">
+      <obj_property name="ElementShortName">sum[31:0]</obj_property>
+      <obj_property name="ObjectShortName">sum[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/adder_tb/diff" type="array">
+      <obj_property name="ElementShortName">diff[31:0]</obj_property>
+      <obj_property name="ObjectShortName">diff[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/adder_tb/i" type="array">
+      <obj_property name="ElementShortName">i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">i[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/adder_tb/error_count" type="array">
+      <obj_property name="ElementShortName">error_count[31:0]</obj_property>
+      <obj_property name="ObjectShortName">error_count[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/adder_tb/ANS_MASK" type="array">
+      <obj_property name="ElementShortName">ANS_MASK[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ANS_MASK[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/adder_tb/NUM_VECTORS" type="array">
+      <obj_property name="ElementShortName">NUM_VECTORS[31:0]</obj_property>
+      <obj_property name="ObjectShortName">NUM_VECTORS[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/adder_tb/a" type="array">
+      <obj_property name="ElementShortName">a[31:0]</obj_property>
+      <obj_property name="ObjectShortName">a[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/adder_tb/b" type="array">
+      <obj_property name="ElementShortName">b[31:0]</obj_property>
+      <obj_property name="ObjectShortName">b[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/adder_tb/sum" type="array">
+      <obj_property name="ElementShortName">sum[31:0]</obj_property>
+      <obj_property name="ObjectShortName">sum[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/adder_tb/diff" type="array">
+      <obj_property name="ElementShortName">diff[31:0]</obj_property>
+      <obj_property name="ObjectShortName">diff[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/adder_tb/i" type="array">
+      <obj_property name="ElementShortName">i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">i[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/adder_tb/error_count" type="array">
+      <obj_property name="ElementShortName">error_count[31:0]</obj_property>
+      <obj_property name="ObjectShortName">error_count[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/adder_tb/ANS_MASK" type="array">
+      <obj_property name="ElementShortName">ANS_MASK[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ANS_MASK[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/adder_tb/NUM_VECTORS" type="array">
+      <obj_property name="ElementShortName">NUM_VECTORS[31:0]</obj_property>
+      <obj_property name="ObjectShortName">NUM_VECTORS[31:0]</obj_property>
+   </wvobject>
+</wave_config>

@@ -124,6 +124,11 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
+      <File Path="$PPRDIR/docs/adder_tb_behav.wcfg">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
       <Config>
         <Option Name="DesignMode" Val="RTL"/>
         <Option Name="TopModule" Val="adder_tb"/>
@@ -137,6 +142,7 @@
         <Option Name="PamSignalDriverFile" Val="xil_bypass_driver"/>
         <Option Name="PamPseudoTop" Val="pseudo_tb"/>
         <Option Name="SrcSet" Val="sources_1"/>
+        <Option Name="XSimWcfgFile" Val="$PPRDIR/docs/adder_tb_behav.wcfg"/>
         <Option Name="CosimPdi" Val=""/>
         <Option Name="CosimPlatform" Val=""/>
         <Option Name="CosimElf" Val=""/>
