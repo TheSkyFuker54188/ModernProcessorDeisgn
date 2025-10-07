@@ -1,6 +1,7 @@
 # compile verilog/system verilog design source files
 verilog xil_defaultlib  \
 "../../../../project_1.srcs/sources_1/new/adder.v" \
+"../../../../project_1.srcs/sources_1/new/adder_spec.v" \
 "../../../../project_1.srcs/sim_1/new/adder_tb.v" \
 
 # compile glbl module

@@ -12,6 +12,7 @@ Time Resolution for simulation is 1ps
 Compiling module xil_defaultlib.cla4
 Compiling module xil_defaultlib.cla32_default
 Compiling module xil_defaultlib.adder
+Compiling module xil_defaultlib.adder_spec
 Compiling module xil_defaultlib.adder_tb
 Compiling module xil_defaultlib.glbl
 Built simulation snapshot adder_tb_behav
