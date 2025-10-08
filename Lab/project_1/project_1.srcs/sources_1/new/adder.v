@@ -1,21 +1,12 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// 32-bit Carry Look-Ahead Adder (Two-Level: 4-bit CLA blocks)
-// Author: (auto-generated)
-// Date  : 2025/10/07
-// Description:
-//   Hierarchical fast adder composed of eight 4-bit CLA blocks with a second
-//   level block carry look-ahead expansion. Provides sum, final carry-out and
-//   signed overflow indication.
-// 
-// Notes:
-//   * Purely combinational.
-//   * overflow flag is meaningful only when interpreting inputs as signed.
-//   * Can be adapted to other widths by parameterizing and generalizing the
-//     block-level expansion logic.
+// 32-bit Carry Look-Ahead Adder
+// Two-level structure: 8 × 4-bit CLA blocks + block级进位展开。
+// 输出: sum, cout, overflow（有符号相加溢出指示）。
+// 纯组合逻辑。
 //////////////////////////////////////////////////////////////////////////////////
 
-// 4-bit CLA Block
+// 4-bit CLA 基本块
 module cla4 (
     input  wire [3:0] a,
     input  wire [3:0] b,
@@ -52,7 +43,7 @@ module cla4 (
     assign G_group = g[3] | (p[3] & g[2]) | (p[3] & p[2] & g[1]) | (p[3] & p[2] & p[1] & g[0]);
 endmodule
 
-// 32-bit CLA using 8x 4-bit CLA blocks and second-level block carry look-ahead
+// 上层 32 位 CLA：实例化 8 个 cla4 并做块级进位展开
 module cla32 (
     input  wire [31:0] a,
     input  wire [31:0] b,
@@ -96,7 +87,7 @@ module cla32 (
     assign overflow = (a[31] & b[31] & ~sum[31]) | (~a[31] & ~b[31] & sum[31]);
 endmodule
 
-// Friendly wrapper top-level
+// 顶层包装（保留 cin / cout / overflow 接口）
 module adder (
     input  wire [31:0] a,
     input  wire [31:0] b,

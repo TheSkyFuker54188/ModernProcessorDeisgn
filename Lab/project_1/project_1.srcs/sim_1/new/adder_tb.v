@@ -6,7 +6,7 @@ module adder_tb;
     reg  [31:0] a, b;
     wire [31:0] sum;
 
-    // Use wrapper that conforms to experiment-specified interface
+    // 使用实验要求的包装模块接口
     adder_spec uut(
         .a(a),
         .b(b),
@@ -19,8 +19,8 @@ module adder_tb;
     localparam [31:0] ANS_MASK = 32'h0000_000F; // 4-bit mode (if macro undefined)
 `endif
 
-    // Optional helper signal for manual waveform inspection: difference
-    wire [31:0] diff = ((a + b) - sum) & ANS_MASK; // expect 0 when correct
+    // diff 期望为 0，用于快速判断是否正确
+    wire [31:0] diff = ((a + b) - sum) & ANS_MASK;
 
     integer i;
     integer error_count = 0;          // 统计错误次数
