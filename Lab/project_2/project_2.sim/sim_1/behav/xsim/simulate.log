@@ -1,0 +1,7 @@
+Time resolution is 1 ps
+================ ALU TEST SUMMARY ================
+Total vectors : 1212416
+Error count   : 0
+RESULT        : PASS
+==================================================
+$finish called at time : 2424882 ns : File "D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_2/project_2.srcs/sim_1/new/alu_tb.v" Line 233

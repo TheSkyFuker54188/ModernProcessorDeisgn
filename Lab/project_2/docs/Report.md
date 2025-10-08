@@ -1,82 +1,141 @@
-# 实验 2：32 位 ALU 设计与仿真
+# 实验 2：32 位 ALU 设计与仿真报告
 
-（这份报告就是按照自己做实验时的思路随手整理的，语言比较口语化一点。）
+> 李佳祎 2023202295
 
-## 1. 实验目标
-实现一个 32 位组合逻辑 ALU，支持实验指导给出的 11 条操作：
+## 1. 实验目的
 
-- 算术：ADD / ADDU / SUB / SUBU（用超前进位加法器）
-- 移位：SLL / SRL / SRA（移位位数取 A[4:0]）
-- 逻辑：AND / OR / XOR / NOR
+1. 练习用 Verilog 描述一个 32 位组合逻辑 ALU，支持指导文档列出的 11 种运算（ADD / ADDU / SUB / SUBU / SLL / SRL / SRA / AND / OR / XOR / NOR）。
+2. 复用上一次实验的超前进位加法器结构，体会模块化与多文件组织。
+3. 在 Vivado 中编写/添加 testbench，运行行为级仿真并验证功能正确性。
 
-并在 Vivado 中用给定的 `alu_tb.v` 做功能仿真，`correct` 信号应始终为 1。
+## 2. 实验环境
 
-## 2. 接口与编码
-模块接口：`module alu(A,B,Op,C,Over);`
+| 条目     | 说明                                              |
+| -------- | ------------------------------------------------- |
+| 操作系统 | Windows (本机)                                    |
+| EDA 工具 | Vivado (课堂环境版本，含内置仿真器)               |
+| 语言     | Verilog HDL                                       |
+| 时间基准 | `timescale 1ns / 1ns`（按照实验指导建议手动改） |
 
-| 信号    | 方向   | 说明                                  |
-| ------- | ------ | ------------------------------------- |
-| A[31:0] | Input  | 第一个操作数（移位时下 5 位为位移量） |
-| B[31:0] | Input  | 第二个操作数                          |
-| Op[5:0] | Input  | 操作码                                |
-| C[31:0] | Output | 结果                                  |
-| Over    | Output | 溢出（仅对 ADD/SUB 有符号版本有效）   |
+## 3. 设计要求与总体思路
 
-操作码直接与指导文档一致，没有做额外封装。
+### 3.1 功能点
 
-## 3. 设计思路
-1. 提前把加法和减法都算好：
-	- 加法：直接 `adder`（来自上一次实验的 32 位 CLA）。
-	- 减法：A + (~B + 1)。
-2. 有符号溢出判定：
-	- ADD：被加数符号相同，结果符号不同。
-	- SUB：A 与 B 符号不同，结果符号与 A 不同。
-3. 无符号版本 Over 恒 0。
-4. 移位：用 Verilog 自带移位操作符，算术右移用 `$signed(B) >>> shamt`。
-5. 逻辑运算很直接：与/或/异或/或非。
-6. 纯组合：整个 always 块用 `always @*`，没有时钟，也避免遗漏敏感列表导致综合 latch。
+| 类别       | 指令                 | 说明               | Over 规则          |
+| ---------- | -------------------- | ------------------ | ------------------ |
+| 有符号算术 | ADD / SUB            | 需要判断有符号溢出 | 根据符号位组合判定 |
+| 无符号算术 | ADDU / SUBU          | 仍用同一套加法器   | Over 恒 0          |
+| 移位       | SLL / SRL / SRA      | 位移量取 A[4:0]    | 恒 0               |
+| 位逻辑     | AND / OR / XOR / NOR | 逐位运算           | 恒 0               |
 
-## 4. 关键代码片段说明
-加/减结果预先算：
+### 3.2 模块划分
+
 ```
+alu.v
+ ├─ cla4（4 位基本块）
+ ├─ cla32（8×cla4 + 块级进位展开）
+ ├─ adder（对 cla32 的简单封装）
+ └─ alu（顶层：实例化两份 adder 做加/减，case 选择输出）
+```
+
+### 3.3 关键点
+
+* 纯组合逻辑，`always @*`，不引入时钟，避免综合出寄存器或锁存器。
+* SUB 通过 `A + (~B + 1)` 实现。为减少“写错补码”风险直接实例化第二个 adder。
+* 溢出仅对有符号 ADD/SUB 判定：
+  - `ADD`：操作数符号相同且结果符号不同。
+  - `SUB`：操作数符号不同且结果符号与 A 不同。
+* 算术右移使用 `$signed(B) >>> shamt`，其它移位采用逻辑运算符。
+* 移位量统一用 `A[4:0]`，与 testbench 保持一致，避免出现 >31 的不确定行为。
+
+## 4. 接口定义
+
+模块原型：`module alu(A,B,Op,C,Over);`
+
+| 信号 | 方向   | 位宽 | 说明                                  |
+| ---- | ------ | ---- | ------------------------------------- |
+| A    | Input  | 32   | 第一个操作数；同时提供移位位数 A[4:0] |
+| B    | Input  | 32   | 第二个操作数                          |
+| Op   | Input  | 6    | 指令编码（与实验指导一致）            |
+| C    | Output | 32   | 运算结果                              |
+| Over | Output | 1    | 溢出（仅 ADD/SUB 有符号生效）         |
+
+## 5. 关键逻辑代码（节选）
+
+加 / 减双路径：
+
+```verilog
 adder u_add (.a(A), .b(B),  .cin(1'b0), .sum(add_sum), .overflow(add_of));
-adder u_sub (.a(A), .b(~B), .cin(1'b1), .sum(sub_sum), .overflow(sub_dummy_of));
+adder u_sub (.a(A), .b(~B), .cin(1'b1), .sum(sub_sum), .overflow()); // 自己判溢出
 ```
-溢出：
+
+溢出判定：
+
+```verilog
+wire add_overflow_signed = (A[31] == B[31]) && (add_sum[31] != A[31]);
+wire sub_overflow_signed = (A[31] != B[31]) && (sub_sum[31] != A[31]);
 ```
-add_overflow_signed = (A[31] == B[31]) && (add_sum[31] != A[31]);
-sub_overflow_signed = (A[31] != B[31]) && (sub_sum[31] != A[31]);
+
+算术右移：
+
+```verilog
+C = $signed(B) >>> A[4:0];
 ```
-移位位数：`shamt = A[4:0]`。
 
-## 5. 与测试激励的对应
-测试文件里每个操作都跑了大量组合：
-* ADD / SUB 前两段循环里也在自己算 `ans` 与 `cov`（其实就是溢出公式）。
-* 无符号版本把 `cov` 强行置 0。
-* 移位只取 A 的低 5 位，这里和实现保持一致。
-* 逻辑运算都是中小范围移位后取不同位宽的拼出来的数，没有额外坑。
+（全文代码在 `alu.v`，这里不重复黏贴。）
 
-因此实现里保持：
-* 不去偷懒用 `assign {Over,C} = ...`，而是显式分开，避免把溢出和进位混淆。
-* SUB 也不用 adder 自带 overflow（因为减法那边输入已经变形），重新写判定更直观。
+## 6. Testbench 思路
 
-## 6. 仿真现象（口述）
-跑完以后：
-* 时间跨度大概两千多 ns（循环很多）。
-* `correct` 在波形里始终为 1（用 “Find Value” 搜 0 没搜到）。
-* ADD / SUB 时可以看到 Over 在边界用例（例如 0x7fffffff + 1，0x80000000 - 1 等）闪一下。
-* SRA 对于负数（最高位 1）右移时高位补 1，与 `$signed` 语义吻合。
+* 原始提供的 `alu_tb.v` 枚举多组稀疏位形态：`ii<<i` 与 `jj<<j` 组合，能覆盖不同位位置的进位/借位传播场景。
+* 针对加减：for 四层循环，内部计算期望值 `ans` 和溢出标志 `cov`。
+* 本次在 testbench 上做了改进：加入自动统计任务 `record_result`，结束时打印：
+  - 总用例数 / 错误数
+  - 首个出错时刻、输入、期望/实际结果
+  - 按 opcode 的错误分布（若有）。
 
-（截图略——实际提交时可把关键几组波形粘进来：ADD 溢出、SRA 右移、NOR 输出全 1 等。）
+```verilog
+ // 输出总结
+        $display("================ ALU TEST SUMMARY ================");
+        $display("Total vectors : %0d", total_vectors);
+        $display("Error count   : %0d", error_count);
+        if(error_count==0) begin
+            $display("RESULT        : PASS");
+        end else begin
+            $display("RESULT        : FAIL");
+            $display("First error at %0t ns", first_err_time);
+            $display("  op=%b in1=%h in2=%h", op, in1, in2);
+            $display("  expected C=%h Over=%b", first_exp, first_ov_exp);
+            $display("  got      C=%h Over=%b", first_got, first_ov_got);
+            // 简单列出出现过错误的 op
+            for(k=0;k<64;k=k+1) if(op_err[k]>0) begin
+                $display("  OP %06b : %0d errors / %0d vectors", k[5:0], op_err[k], op_cnt[k]);
+            end
+        end
+        $display("==================================================");
+```
 
-## 7. 可能的改进（这次没做）
-* 可以把加/减复用成一套，加个选择信号，少一份 adder 实例，面积略减。
-* 再往后扩展的话，可以加 SLT / SLTU / 乘法 / 逻辑左/右旋 / 位清除等。
-* Overflow 也可以统一用一个小函数封装，代码更紧凑，不过现在已经比较清楚。
+## 7. 仿真步骤
 
-## 8. 小结
-这次重点其实不在 ALU 本身，而是熟悉多文件 + 组合逻辑写法。结构上保持简单，不引入无关 feature，优先保证和测试激励一一对应。仿真通过后基本就 OK 了。
+1. 将 `alu.v` 作为 **Design Sources** 添加；`alu_tb.v` 作为 **Simulation Sources** 添加并设为仿真顶层。
+2. 确认所有文件首行 `timescale` 已改为 `1ns / 1ns`。
+3. Run Behavioral Simulation，等待跑完整个 2.4µs 左右的波形。
+4. Console 中查看汇总：若显示 PASS 且错误为 0 即可。
+5. 额外用波形工具搜索：`correct` 是否曾为 0（Find Value）。
 
----
-附：完整源码见 `alu.v`。
+## 8. 仿真结果
 
+文字观察：
+
+- 控制台打印：`RESULT : PASS`，`Error count : 0`。
+- 在波形里查看 ADD 边界：`0x7fffffff + 1` 时 Over = 1；`0x80000000 - 1` 也能正确置位。
+- SRA 对 `B=0xF0000000` 右移若干位时高位保持 1，符合预期。
+- 
+![alt text](image/波形图.png)
+![alt text](image/仿真结果统计.png)
+## 9. 遇到的小问题与解决
+
+| 问题                     | 现象                               | 排查 & 解决                                                                |
+| ------------------------ | ---------------------------------- | -------------------------------------------------------------------------- |
+| overflow 公式一开始写混  | SUB 情况某些用例溢出错             | 回头对照 testbench 写法，重新用“符号不同且结果符号与 A 不同”表达式，修正 |
+| 忘记限制移位位数         | SRL/SRA 某些大于 31 位移出现不稳定 | 明确统一使用 `A[4:0]`，与题目 / testbench 逻辑一致                       |
+| testbench 人工看结果费时 | 需要鼠标找 correct                 | 加入统计任务和汇总打印，省掉人工翻波形                                     |
