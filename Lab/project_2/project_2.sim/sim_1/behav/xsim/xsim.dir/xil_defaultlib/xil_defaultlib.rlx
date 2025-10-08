@@ -1,0 +1,7 @@
+0.7
+2020.2
+Nov  8 2024
+22:36:57
+D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_2/project_2.sim/sim_1/behav/xsim/glbl.v,1724786425,verilog,,,,glbl,,,,,,,,
+D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_2/project_2.srcs/sim_1/new/alu_tb.v,1759909390,verilog,,,,alu_tb,,,,,,,,
+D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_2/project_2.srcs/sources_1/new/alu.v,1759908165,verilog,,D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_2/project_2.srcs/sim_1/new/alu_tb.v,,adder;alu;cla32;cla4,,,,,,,,
