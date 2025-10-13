@@ -1,0 +1,25 @@
+Time resolution is 1 ps
+TB @5000: reset=1 writeEnabled=0 address=00000000 writeInput=00000000
+[5000] Reset asserted, clearing memory
+TB @15000: reset=1 writeEnabled=0 address=00000000 writeInput=00000000
+TB @25000: reset=0 writeEnabled=0 address=00000000 writeInput=00000000
+Reset check passed at 00000000
+TB @35000: reset=0 writeEnabled=0 address=00000000 writeInput=00000000
+TB @45000: reset=0 writeEnabled=1 address=00000000 writeInput=deadbeef
+[45000] Write @ 00000000 = deadbeef
+TB @55000: reset=0 writeEnabled=0 address=00000000 writeInput=deadbeef
+mem[0] = deadbeef (after write)
+Write/read check passed at 00000000
+TB @65000: reset=0 writeEnabled=0 address=00000000 writeInput=deadbeef
+TB @75000: reset=0 writeEnabled=1 address=00000004 writeInput=cafe1234
+[75000] Write @ 00000004 = cafe1234
+TB @85000: reset=0 writeEnabled=0 address=00000004 writeInput=cafe1234
+mem[1] = cafe1234 (after write)
+Write/read check passed at 00000004
+TB @95000: reset=0 writeEnabled=0 address=00000008 writeInput=cafe1234
+Unwritten address check passed at 00000008
+TB @105000: reset=0 writeEnabled=0 address=00000008 writeInput=abcdef01
+Write-enable gating check passed at 00000008
+TB @115000: reset=0 writeEnabled=0 address=00000008 writeInput=abcdef01
+[PASS] Data memory test completed with no errors.
+$finish called at time : 120 ns : File "D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_3/project_3.srcs/sim_1/new/data_memory_tb.v" Line 102
