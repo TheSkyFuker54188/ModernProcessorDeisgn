@@ -13,10 +13,13 @@ module program_counter (
     always @(posedge clock) begin
         if (reset) begin
             pcValue <= RESET_VECTOR;
+            $display("[%0t] PC reset -> %h", $time, RESET_VECTOR);
         end else if (jumpEnabled) begin
             pcValue <= jumpInput;
+            $display("[%0t] PC jump -> %h", $time, jumpInput);
         end else begin
             pcValue <= pcValue + 32'd4;
+            $display("[%0t] PC increment -> %h", $time, pcValue + 32'd4);
         end
     end
 endmodule
