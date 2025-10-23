@@ -26,9 +26,9 @@ inner_loop:
     # compute i + j -> $t2
     addu $t2, $t0, $t1
 
-    # compute address offset = 4 * j
-    sll $t3, $t1, 2
-    addu $t4, $s2, $t3   # address = base + 4*j
+    # compute byte offset = 16 * j  (because D[4*j] means index by 4 words -> 16 bytes)
+    sll $t3, $t1, 4
+    addu $t4, $s2, $t3   # address = base + 16*j
 
     # store i+j into memory at address (word store)
     sw $t2, 0($t4)
