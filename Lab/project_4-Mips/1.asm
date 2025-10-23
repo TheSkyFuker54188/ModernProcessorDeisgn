@@ -1,7 +1,4 @@
 .data
-prompt_len: .asciiz "Length:\n"
-prompt_wid: .asciiz "Width:\n"
-prompt_hgt: .asciiz "Height:\n"
 illegal: .asciiz "Illegal Input\n"
 newline: .asciiz "\n"
 
@@ -10,9 +7,6 @@ newline: .asciiz "\n"
 main:
     # 读取 length -> $t0, 要求 > 0
 read_len:
-    li $v0, 4
-    la $a0, prompt_len
-    syscall
     li $v0, 5
     syscall
     move $t0, $v0
@@ -26,9 +20,6 @@ len_invalid:
 
     # 读取 width -> $t1, 要求 > 0
 read_width:
-    li $v0, 4
-    la $a0, prompt_wid
-    syscall
     li $v0, 5
     syscall
     move $t1, $v0
@@ -42,9 +33,6 @@ wid_invalid:
 
     # 读取 height -> $t2, 要求 > 0
 read_height:
-    li $v0, 4
-    la $a0, prompt_hgt
-    syscall
     li $v0, 5
     syscall
     move $t2, $v0
