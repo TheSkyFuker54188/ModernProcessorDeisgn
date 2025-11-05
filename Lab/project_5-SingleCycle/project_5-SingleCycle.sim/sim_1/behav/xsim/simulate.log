@@ -1,0 +1,8 @@
+Time resolution is 1 ps
+Loading instruction memory from D:\PROGRAMMING\ModernProcessorDeisgn\Lab\project_5-SingleCycle\code.txt
+Loading expected DataMemory from D:\PROGRAMMING\ModernProcessorDeisgn\Lab\project_5-SingleCycle\dm_expected.txt
+WARNING: Too many words specified in data file D:\PROGRAMMING\ModernProcessorDeisgn\Lab\project_5-SingleCycle\dm_expected.txt
+
+==== Simulation finished via syscall at PC 000030e8 ====
+[AutoCompare] PASS: 64 words match expected starting at offset 0.
+$finish called at time : 338175 ns : File "D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/TopLevel.v" Line 240

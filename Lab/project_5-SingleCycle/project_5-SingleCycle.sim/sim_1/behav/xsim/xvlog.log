@@ -1,0 +1,16 @@
+INFO: [VRFC 10-2263] Analyzing Verilog file "D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/ArithmeticLogicUnit.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module ArithmeticLogicUnit
+INFO: [VRFC 10-2263] Analyzing Verilog file "D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/Controller.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module Controller
+INFO: [VRFC 10-2263] Analyzing Verilog file "D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/DataMemory.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module DataMemory
+INFO: [VRFC 10-2263] Analyzing Verilog file "D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/InstructionMemory.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module InstructionMemory
+INFO: [VRFC 10-2263] Analyzing Verilog file "D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/ProgramCounter.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module ProgramCounter
+INFO: [VRFC 10-2263] Analyzing Verilog file "D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/RegisterFile.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module RegisterFile
+INFO: [VRFC 10-2263] Analyzing Verilog file "D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/TopLevel.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module TopLevel
+INFO: [VRFC 10-2263] Analyzing Verilog file "D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/mips_tb.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module mips_tb

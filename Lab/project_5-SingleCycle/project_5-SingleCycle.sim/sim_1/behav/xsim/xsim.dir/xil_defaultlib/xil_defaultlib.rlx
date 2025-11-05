@@ -1,0 +1,14 @@
+0.7
+2020.2
+Nov  8 2024
+22:36:57
+D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/ArithmeticLogicUnit.v,1762362694,verilog,,D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/Controller.v,D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/cpu_defs.vh,ArithmeticLogicUnit,,,../../../../,,,,,
+D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/Controller.v,1762362694,verilog,,D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/DataMemory.v,D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/cpu_defs.vh,Controller,,,../../../../,,,,,
+D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/DataMemory.v,1762364930,verilog,,D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/InstructionMemory.v,D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/cpu_defs.vh,DataMemory,,,../../../../,,,,,
+D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/InstructionMemory.v,1762360744,verilog,,D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/ProgramCounter.v,D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/cpu_defs.vh,InstructionMemory,,,../../../../,,,,,
+D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/ProgramCounter.v,1762360744,verilog,,D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/RegisterFile.v,,ProgramCounter,,,../../../../,,,,,
+D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/RegisterFile.v,1762360744,verilog,,D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/TopLevel.v,D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/cpu_defs.vh,RegisterFile,,,../../../../,,,,,
+D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/TopLevel.v,1762362451,verilog,,D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/mips_tb.v,D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/cpu_defs.vh,TopLevel,,,../../../../,,,,,
+D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/cpu_defs.vh,1762360744,verilog,,,,,,,,,,,,
+D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/mips_tb.v,1762361659,verilog,,,,mips_tb,,,../../../../,,,,,
+D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_5-SingleCycle/project_5-SingleCycle.sim/sim_1/behav/xsim/glbl.v,1724786425,verilog,,,,glbl,,,,,,,,
