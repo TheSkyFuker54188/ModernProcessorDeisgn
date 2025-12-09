@@ -96,6 +96,13 @@ module PipelineTop (
         .alu_control(alu_controlD)
     );
 
+    // ID-stage debug: when ID decides to write a register, print decode info and read data
+    always @(posedge clock) begin
+        if (!reset && reg_writeD) begin
+            $display("[ID_DBG] time=%0t IF/ID_PC=%h opcode=%h reg_dst=%0d write_src_sel=%0d reg_write=%0d rs=%0d rt=%0d rd=%0d reg_data1=%h reg_data2=%h imm_ext=%h", $time, if_id_pc, opcodeD, reg_dstD, write_src_selD, reg_writeD, rsD, rtD, rdD, reg_data1D, reg_data2D, imm_extD);
+        end
+    end
+
     wire [31:0] reg_data1D;
     wire [31:0] reg_data2D;
 
@@ -238,6 +245,13 @@ module PipelineTop (
             if (id_ex_pc == 32'h00003068 || id_ex_dest == 5'd23) begin
                 $display("[EX_DBG] time=%0t id_ex_pc=%h id_ex_dest=%0d rs=%0d rt=%0d id_ex_reg_data1=%h id_ex_reg_data2=%h forwardA=%h forwardB=%h alu_operand_b=%h alu_result=%h id_ex_write_src_sel=%0d id_ex_reg_write=%0d", $time, id_ex_pc, id_ex_dest, id_ex_rs, id_ex_rt, id_ex_reg_data1, id_ex_reg_data2, forwardA_value, forwardB_value, alu_operand_b, alu_resultE, id_ex_write_src_sel, id_ex_reg_write);
             end
+        end
+    end
+
+    // Detailed EX debug when a store (mem_write) is being issued from EX stage
+    always @(posedge clock) begin
+        if (!reset && id_ex_mem_write) begin
+            $display("[EX_PRINT] time=%0t PC=%h id_ex_dest=%0d rs=%0d rt=%0d id_ex_reg_data1=%h id_ex_reg_data2=%h forwardA=%h forwardB=%h alu_operand_b=%h alu_result=%h id_ex_write_src_sel=%0d id_ex_reg_write=%0d", $time, id_ex_pc, id_ex_dest, id_ex_rs, id_ex_rt, id_ex_reg_data1, id_ex_reg_data2, forwardA_value, forwardB_value, alu_operand_b, alu_resultE, id_ex_write_src_sel, id_ex_reg_write);
         end
     end
 
@@ -412,6 +426,11 @@ module PipelineTop (
             if (id_ex_is_syscall) begin
                 $display("[DBG] EX stage passing syscall from ID pc=%h (id_ex_pc=%h)", id_ex_dest, id_ex_pc);
             end
+            // Debug: when EX stage issues a memory write, print Mars-style store and a debug line
+            if (id_ex_mem_write) begin
+                $display("@%h: *%h <= %h", id_ex_pc, alu_resultE, store_dataE);
+                $display("[MEM_DBG] time=%0t EX issued mem_write pc=%h addr=%h data=%h", $time, id_ex_pc, alu_resultE, store_dataE);
+            end
         end
     end
 
@@ -442,6 +461,10 @@ module PipelineTop (
             if (ex_mem_is_syscall) begin
                 $display("[DBG] MEM/WB stage received syscall, ex_mem_pc=%h mem_wb_pc will be %h", ex_mem_pc, ex_mem_pc);
             end
+            // Debug: when MEM/WB is performing a register write, print write source and data
+            if (mem_wb_reg_write) begin
+                $display("[WB_DBG] time=%0t mem_wb_dest=$%0d mem_wb_write_src_sel=%0d mem_wb_mem_to_reg=%0d mem_wb_write_data=%h mem_wb_pc=%h", $time, mem_wb_dest, mem_wb_write_src_sel, mem_wb_mem_to_reg, mem_wb_write_data, mem_wb_pc);
+            end
             // Additional debug: when EX/MEM is going to write to $23 (s7), print source and values
             if (ex_mem_reg_write && ex_mem_dest == 5'd23) begin
                 $display("[WR_DBG] time=%0t EX/MEM will write $23: ex_mem_pc=%h write_src_sel=%0d alu_result=%h mem_read_data=%h", $time, ex_mem_pc, ex_mem_write_src_sel, ex_mem_alu_result, data_memory_read_data);
@@ -456,6 +479,19 @@ module PipelineTop (
         reg_writeW = mem_wb_reg_write;
     end
 
+    // Snapshot probe: when PC hits 0x0000303C or when writing $17/$31, dump pipeline state
+    always @(posedge clock) begin
+        if (!reset) begin
+            if (pc_current == 32'h0000303c) begin
+                $display("[SNAP] time=%0t PC=%h if_id_pc=%h if_id_instr=%h id_ex_pc=%h id_ex_dest=%0d id_ex_rs=%0d id_ex_rt=%0d id_ex_reg_data1=%h id_ex_reg_data2=%h ex_mem_dest=%0d ex_mem_alu_result=%h mem_wb_dest=%0d mem_wb_write_data=%h stallF=%0d stallD=%0d flushE=%0d pc_enable=%0d redirectE=%0d id_ex_mem_to_reg=%0d id_ex_reg_write=%0d ex_mem_reg_write=%0d mem_wb_reg_write=%0d forwardAE=%b forwardBE=%b", $time, pc_current, if_id_pc, if_id_instr, id_ex_pc, id_ex_dest, id_ex_rs, id_ex_rt, id_ex_reg_data1, id_ex_reg_data2, ex_mem_dest, ex_mem_alu_result, mem_wb_dest, mem_wb_write_data, stallF, stallD, flushE, pc_enable, redirect_validE, id_ex_mem_to_reg, id_ex_reg_write, ex_mem_reg_write, mem_wb_reg_write, forwardAE, forwardBE);
+            end
+
+            if (mem_wb_reg_write && (mem_wb_dest == 5'd17 || mem_wb_dest == 5'd31)) begin
+                $display("[SNAP_WR] time=%0t mem_wb_dest=$%0d mem_wb_write_data=%h mem_wb_pc=%h", $time, mem_wb_dest, mem_wb_write_data, mem_wb_pc);
+            end
+        end
+    end
+
     // Halt monitor ---------------------------------------------------------------
     always @(posedge clock or posedge reset) begin
         if (reset) begin
@@ -463,7 +499,8 @@ module PipelineTop (
         end else if (mem_wb_is_syscall && !halted) begin
             halted <= 1'b1;
             $display("\n==== Simulation finished via syscall at PC %h ====", mem_wb_pc);
-            $finish;
+            // NOTE: Do not call $finish here. Let the testbench observe `halted`
+            // and perform final comparisons before finishing simulation.
         end
     end
 endmodule

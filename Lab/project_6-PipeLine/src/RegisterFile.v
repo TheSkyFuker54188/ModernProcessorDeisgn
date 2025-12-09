@@ -26,6 +26,10 @@ module RegisterFile (
                 registers[write_addr] <= write_data;
             end
             $display("@%h: $%0d <= %h", debug_pc, write_addr, write_data);
+            // Additional focused debug for key registers to ease grep
+            if (write_addr == 5'd1 || write_addr == 5'd17 || write_addr == 5'd23 || write_addr == 5'd31) begin
+                $display("[REG_WR] time=%0t pc=%h write_reg=$%0d write_val=%h", $time, debug_pc, write_addr, write_data);
+            end
         end
     end
 

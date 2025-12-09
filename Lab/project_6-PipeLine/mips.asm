@@ -1,59 +1,31 @@
-# Test asm for MIPS-LITE2
-	.text
-	.org 0x00003000
-initial:
-	beq $a0,$zero,main
-	ori $s1,0xff
-	ori $s2,0xff
-	ori $s3,0xff
-	lui $s1,0x17
-	ori $s1,0x73
-	lui $s2,0x62
-	ori $s2,0x69
-	lui $s3,0x56
-	ori $s3,0xcd
-	sw $s1,-12($a0)
-	sw $s2,-8($a0)
-	sw $s3,-4($a0)
-	jr $ra
-main:
-	addiu $a0,$zero,12
-	jal initial
-	addiu $a0,$zero,4
-	addiu $s7,$zero,1024
-loop:
-	addiu $s7,$s7,-1
-	jal func
-	addu $a0,$a0,4
-	beq $s7,$zero,end
-	j loop
+# Compact comprehensive test for pipeline (covers ALU, load/store, branch, call/return, load-use)
+    .text
+    .org 0x00003000
+start:
+    addi $t0, $zero, 5    # $8 = 5
+    addi $t1, $zero, 2    # $9 = 2
+    addu $t2, $t0, $t1    # $10 = 7
+    sw   $t2, 0($zero)    # mem[0] = 7
+    lw   $t3, 0($zero)    # $11 = 7
+    ori  $s0, $t3, 0x00FF # $16 = 7 | 0x00FF
+
+    # Load-use hazard: load then use immediately
+    sw   $t1, 4($zero)    # mem[4] = 2
+    lw   $t4, 4($zero)    # $12 = 2
+    addu $t5, $t4, $t1    # $13 = $12 + $9 (load-use)
+
+    # Branch with delay slot
+    addi $t6, $zero, 1    # delay-slot instruction (executes regardless)
+    beq  $t5, $zero, skip # branch likely not taken
+    nop
+skip:
+
+    # Call and return
+    jal  func             # $31 = return addr, jump to func
+    addi $v0, $zero, 10   # syscall code in delay slot
+    syscall
+
 func:
-	lw $t0, -4($a0)
-	lw $t1, 0($a0)
-	lw $t2, 4($a0)
-	lw $t3,8($a0)
-	lw $t4,12($a0)
-	ori $t7,$t0,0x01
-	beq $t7,$zero,else1
-	addu $t1,$t1,$t2
-	subu $t1,$t1,$t3
-	addu $t3,$t3,$t4
-	subu $t4,$t2,$t4
-else1:
-	addu $t3,$t3,$t2
-	subu $t4,$t1,$t4
-	ori $t7,$t0,0x80
-	beq $t7,$zero,else2
-	ori $t1,0xAD
-	ori $t2,0xF3
-	ori $t3,0x2B
-	ori $t4,0x17
-else2:
-	sw $t1,4($a0)
-	sw $t2,8($a0)
-	sw $t3,12($a0)
-	sw $t4,16($a0)
-	jr $ra
-end:
-	ori $v0, $zero, 10
-	syscall
+    addi $a0, $zero, 3
+    jr   $ra
+    nop

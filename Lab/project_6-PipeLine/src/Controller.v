@@ -21,6 +21,7 @@ module Controller (
 );
     localparam OPC_RTYPE = 6'b000000;
     localparam OPC_ORI   = 6'b001101;
+    localparam OPC_ADDI  = 6'b001000;
     localparam OPC_LW    = 6'b100011;
     localparam OPC_SW    = 6'b101011;
     localparam OPC_BEQ   = 6'b000100;
@@ -84,6 +85,14 @@ module Controller (
                 use_zero_extend = 1'b1;
                 uses_rs = 1'b1;
                 alu_control = `ALU_CTRL_OR;
+            end
+            OPC_ADDI: begin
+                reg_dst_sel = `REG_DST_RT;
+                reg_write = 1'b1;
+                alu_src = 1'b1;
+                uses_rs = 1'b1;
+                // addi uses sign-extend (default), ALU add
+                alu_control = `ALU_CTRL_ADD;
             end
             OPC_LW: begin
                 reg_dst_sel = `REG_DST_RT;
