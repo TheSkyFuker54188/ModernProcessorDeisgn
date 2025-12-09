@@ -1,7 +1,3 @@
-Running: xsim.dir/pipeline_tb_behav/xsimk.exe -simmode gui -wdb pipeline_tb_behav.wdb -simrunnum 0 -socket 53631
-Design successfully loaded
-Design Loading Memory Usage: 28888 KB (Peak: 28888 KB)
-Design Loading CPU Usage: 530 ms
-Simulation completed
-Simulation Memory Usage: 37952 KB (Peak: 37952 KB)
-Simulation CPU Usage: 2077 ms
+version https://git-lfs.github.com/spec/v1
+oid sha256:a0f9dd4af0e39d5d78081d606f79adee7db2bbbfd93a19efa9090a838e2c220a
+size 330

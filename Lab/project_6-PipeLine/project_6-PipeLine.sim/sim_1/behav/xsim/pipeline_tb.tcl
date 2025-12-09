@@ -1,11 +1,3 @@
-set curr_wave [current_wave_config]
-if { [string length $curr_wave] == 0 } {
-  if { [llength [get_objects]] > 0} {
-    add_wave /
-    set_property needs_save false [current_wave_config]
-  } else {
-     send_msg_id Add_Wave-1 WARNING "No top level signals found. Simulator will start without a wave window. If you want to open a wave window go to 'File->New Waveform Configuration' or type 'create_wave_config' in the TCL console."
-  }
-}
-
-run 1000ns
+version https://git-lfs.github.com/spec/v1
+oid sha256:9a687fc1aeb194ce3c532bec17909edff47238290c36c583207062fbe82a604a
+size 449

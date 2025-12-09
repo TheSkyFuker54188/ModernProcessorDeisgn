@@ -1,20 +1,3 @@
-Time resolution is 1 ps
-0: reset asserted
-[5000] PC reset -> 00003000
-set hold cycle 1 passed: 00003000
-[15000] PC reset -> 00003000
-set hold cycle 2 passed: 00003000
-20000: reset deasserted
-[25000] PC increment -> 00003004
-Auto increment 1 passed: 00003004
-[35000] PC increment -> 00003008
-Auto increment 2 passed: 00003008
-[45000] PC increment -> 0000300c
-[55000] PC jump -> 00003040
-       Jump load passed: 00003040
-[65000] PC increment -> 00003044
-jump increment 1 passed: 00003044
-[75000] PC increment -> 00003048
-jump increment 2 passed: 00003048
-[PASS] PC test completed with no errors.
-$finish called at time : 80 ns : File "D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_3/project_3.srcs/sim_1/new/pc_tb.v" Line 77
+version https://git-lfs.github.com/spec/v1
+oid sha256:aadbf1cc1b2c16ef6b269f99d5fb4276e5cc78189123a83f2339744f4a3c0a73
+size 727

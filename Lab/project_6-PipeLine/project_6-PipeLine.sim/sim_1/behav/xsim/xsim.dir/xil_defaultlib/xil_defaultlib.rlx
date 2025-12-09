@@ -1,16 +1,3 @@
-0.7
-2020.2
-Nov  8 2024
-22:36:57
-D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_6-PipeLine/pipeline_tb.v,1764610412,verilog,,,,pipeline_tb,,,../../../../src,,,,,
-D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_6-PipeLine/project_6-PipeLine.sim/sim_1/behav/xsim/glbl.v,1724786425,verilog,,,,glbl,,,,,,,,
-D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_6-PipeLine/src/ArithmeticLogicUnit.v,1764553029,verilog,,D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_6-PipeLine/src/Controller.v,D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_6-PipeLine/src/cpu_defs.vh,ArithmeticLogicUnit,,,../../../../src,,,,,
-D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_6-PipeLine/src/Controller.v,1764553798,verilog,,D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_6-PipeLine/src/DataMemory.v,D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_6-PipeLine/src/cpu_defs.vh,Controller,,,../../../../src,,,,,
-D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_6-PipeLine/src/DataMemory.v,1764553798,verilog,,D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_6-PipeLine/src/ForwardingUnit.v,D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_6-PipeLine/src/cpu_defs.vh,DataMemory,,,../../../../src,,,,,
-D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_6-PipeLine/src/ForwardingUnit.v,1764553029,verilog,,D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_6-PipeLine/src/HazardDetectionUnit.v,,ForwardingUnit,,,../../../../src,,,,,
-D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_6-PipeLine/src/HazardDetectionUnit.v,1764553029,verilog,,D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_6-PipeLine/src/InstructionMemory.v,,HazardDetectionUnit,,,../../../../src,,,,,
-D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_6-PipeLine/src/InstructionMemory.v,1764553798,verilog,,D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_6-PipeLine/src/PipelineTop.v,D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_6-PipeLine/src/cpu_defs.vh,InstructionMemory,,,../../../../src,,,,,
-D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_6-PipeLine/src/PipelineTop.v,1764553798,verilog,,D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_6-PipeLine/src/ProgramCounter_simple.v,D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_6-PipeLine/src/cpu_defs.vh,PipelineTop,,,../../../../src,,,,,
-D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_6-PipeLine/src/ProgramCounter_simple.v,1764553029,verilog,,D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_6-PipeLine/src/RegisterFile.v,,ProgramCounter,,,../../../../src,,,,,
-D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_6-PipeLine/src/RegisterFile.v,1764553029,verilog,,D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_6-PipeLine/pipeline_tb.v,D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_6-PipeLine/src/cpu_defs.vh,RegisterFile,,,../../../../src,,,,,
-D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_6-PipeLine/src/cpu_defs.vh,1764553798,verilog,,,,,,,,,,,,
+version https://git-lfs.github.com/spec/v1
+oid sha256:4c643c33b35ec95ecbb6c0b67808e892b3bf0de254b4fabc486c6b23d6c9315e
+size 2853
