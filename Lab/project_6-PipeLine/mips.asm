@@ -1,5 +1,6 @@
 # Test asm for MIPS-LITE2
 	.text
+	.org 0x00003000
 initial:
 	beq $a0,$zero,main
 	ori $s1,0xff
@@ -16,12 +17,12 @@ initial:
 	sw $s3,-4($a0)
 	jr $ra
 main:
-	addu $a0,$zero,12
+	addiu $a0,$zero,12
 	jal initial
-	addu $a0,$zero,4
-	addu $s7,$zero,1024
+	addiu $a0,$zero,4
+	addiu $s7,$zero,1024
 loop:
-	subu $s7,$s7,1
+	addiu $s7,$s7,-1
 	jal func
 	addu $a0,$a0,4
 	beq $s7,$zero,end

@@ -35,6 +35,15 @@ module PipelineTop (
         .instruction(instructionF)
     );
 
+    // Debug: print fetched instruction for a small PC window to trace loop
+    always @(posedge clock) begin
+        if (!reset) begin
+            if (pc_current >= 32'h00003060 && pc_current <= 32'h000030d0) begin
+                $display("[FETCH] PC=%h INSTR=%h if_id_instr=%h if_id_pc=%h", pc_current, instructionF, if_id_instr, if_id_pc);
+            end
+        end
+    end
+
     // IF/ID pipeline register ------------------------------------------------------
     reg [31:0] if_id_pc;
     reg [31:0] if_id_pc4;
@@ -223,6 +232,15 @@ module PipelineTop (
         .zero(alu_zeroE)
     );
 
+    // EX-stage debug: when executing instruction at PC 0x00003068 or writing to $23, print operands and forwarding
+    always @(posedge clock) begin
+        if (!reset) begin
+            if (id_ex_pc == 32'h00003068 || id_ex_dest == 5'd23) begin
+                $display("[EX_DBG] time=%0t id_ex_pc=%h id_ex_dest=%0d rs=%0d rt=%0d id_ex_reg_data1=%h id_ex_reg_data2=%h forwardA=%h forwardB=%h alu_operand_b=%h alu_result=%h id_ex_write_src_sel=%0d id_ex_reg_write=%0d", $time, id_ex_pc, id_ex_dest, id_ex_rs, id_ex_rt, id_ex_reg_data1, id_ex_reg_data2, forwardA_value, forwardB_value, alu_operand_b, alu_resultE, id_ex_write_src_sel, id_ex_reg_write);
+            end
+        end
+    end
+
     wire [31:0] branch_targetE = id_ex_pc4 + (id_ex_imm << 2);
     wire branch_takenE = id_ex_branch && (forwardA_value == forwardB_value);
     wire jump_takenE = id_ex_jump;
@@ -356,6 +374,13 @@ module PipelineTop (
         end
     end
 
+    // Debug: report when ID stage detects a syscall
+    always @(posedge clock) begin
+        if (!reset && is_syscallD) begin
+            $display("[DBG] ID detected syscall at IF/ID PC=%h (if_id_pc=%h)", if_id_instr, if_id_pc);
+        end
+    end
+
     // EX/MEM register update
     always @(posedge clock or posedge reset) begin
         if (reset) begin
@@ -384,6 +409,9 @@ module PipelineTop (
             ex_mem_write_data <= store_dataE;
             ex_mem_lui_value <= id_ex_lui_value;
             ex_mem_is_syscall <= id_ex_is_syscall;
+            if (id_ex_is_syscall) begin
+                $display("[DBG] EX stage passing syscall from ID pc=%h (id_ex_pc=%h)", id_ex_dest, id_ex_pc);
+            end
         end
     end
 
@@ -411,6 +439,13 @@ module PipelineTop (
             mem_wb_mem_read_data <= data_memory_read_data;
             mem_wb_lui_value <= ex_mem_lui_value;
             mem_wb_is_syscall <= ex_mem_is_syscall;
+            if (ex_mem_is_syscall) begin
+                $display("[DBG] MEM/WB stage received syscall, ex_mem_pc=%h mem_wb_pc will be %h", ex_mem_pc, ex_mem_pc);
+            end
+            // Additional debug: when EX/MEM is going to write to $23 (s7), print source and values
+            if (ex_mem_reg_write && ex_mem_dest == 5'd23) begin
+                $display("[WR_DBG] time=%0t EX/MEM will write $23: ex_mem_pc=%h write_src_sel=%0d alu_result=%h mem_read_data=%h", $time, ex_mem_pc, ex_mem_write_src_sel, ex_mem_alu_result, data_memory_read_data);
+            end
         end
     end
 

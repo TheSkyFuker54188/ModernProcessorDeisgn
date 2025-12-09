@@ -26,6 +26,27 @@ module pipeline_tb;
     reg [4:0]  exp_addr;
     reg [31:0] exp_data;
     reg synced;
+    // Memory-compare related
+    integer expected_mem_file;
+    parameter MAX_EXPECT_ENTRIES = 16384;
+    reg [31:0] exp_mem_addr [0:MAX_EXPECT_ENTRIES-1]; // word index (address[11:2])
+    reg [31:0] exp_mem_val  [0:MAX_EXPECT_ENTRIES-1];
+    integer exp_mem_count;
+    parameter EXPECT_DEPTH = 1024; // words to consider from DataMemory
+    parameter CMP_WORDS = 64; // require this many consecutive words to match
+    // temp vars for parsing and matching (declare at module scope to satisfy Verilog)
+    integer s;
+    integer i;
+    integer j;
+    integer k;
+    integer run_len;
+    integer match;
+    integer found;
+    integer best_offset;
+    reg [31:0] tmp_pc;
+    reg [31:0] tmp_addr;
+    reg [31:0] tmp_val;
+    reg [8*256:1] dummy_line;
 
     initial begin
         // Try to open the expected output file.
@@ -38,6 +59,28 @@ module pipeline_tb;
             // Read the first line immediately to be ready for comparison
             scan_count = $fscanf(expected_file, "@%h: $%d <= %h\n", exp_pc, exp_addr, exp_data);
             synced = 0;
+        end
+
+        // Also pre-scan the same file to extract memory write expectations
+        exp_mem_count = 0;
+        expected_mem_file = $fopen("D:\\PROGRAMMING\\ModernProcessorDeisgn\\Lab\\project_6-PipeLine\\expected.txt", "r");
+        if (expected_mem_file != 0) begin
+            s = 0;
+            while (!$feof(expected_mem_file)) begin
+                s = $fscanf(expected_mem_file, "@%h: *%h <= %h\n", tmp_pc, tmp_addr, tmp_val);
+                if (s == 3) begin
+                    if (exp_mem_count < MAX_EXPECT_ENTRIES) begin
+                        exp_mem_addr[exp_mem_count] = tmp_addr[11:2];
+                        exp_mem_val[exp_mem_count]  = tmp_val;
+                        exp_mem_count = exp_mem_count + 1;
+                    end
+                end else begin
+                    // skip line if not matching memory write format
+                    $fgets(dummy_line, expected_mem_file);
+                end
+            end
+            $fclose(expected_mem_file);
+            $display("INFO: Parsed %0d memory write entries from expected.txt", exp_mem_count);
         end
     end
 
@@ -85,10 +128,14 @@ module pipeline_tb;
         clock = 1'b0; #5;
         reset = 1'b0;
 
-        for (k = 0; k < 1000000; k = k + 1) begin
+        for (k = 0; k < 5000000; k = k + 1) begin
             clock = 1'b1; #5;
             clock = 1'b0; #5;
             cycle_count = cycle_count + 1;
+            // Periodic status print to help diagnose long runs
+            if (cycle_count % 10000 == 0) begin
+                $display("Status: cycle %0d PC=%h halted=%b", cycle_count, dut.pc_reg.current_pc, dut.halted);
+            end
             if (dut.halted) begin
                 $display("Testbench detected halt at cycle %0d", cycle_count);
                 if (expected_file != 0) begin
@@ -96,6 +143,60 @@ module pipeline_tb;
                         $display("\n[FAILED] Simulation halted, but expected file has more lines.");
                     end else begin
                         $display("\n[SUCCESS] Simulation passed! All writes match expected.txt.");
+                    end
+                end
+                // Now run DataMemory auto-compare (sliding window) if we have expected entries
+                if (exp_mem_count > 0) begin
+                    found = 0;
+                    best_offset = -1;
+                    // find contiguous runs in exp_mem_addr
+                    i = 0;
+                    while (i < exp_mem_count) begin
+                        // find run starting at i
+                        run_len = 1;
+                        while ((i + run_len) < exp_mem_count && exp_mem_addr[i+run_len] == exp_mem_addr[i+run_len-1] + 1) begin
+                            run_len = run_len + 1;
+                        end
+                        if (run_len >= CMP_WORDS) begin
+                            // try matching this run against DataMemory windows
+                            k = 0;
+                            while (k <= (EXPECT_DEPTH - CMP_WORDS)) begin
+                                match = 1;
+                                j = 0;
+                                while (j < CMP_WORDS) begin
+                                    if (dut.data_memory.memory[k + j] !== exp_mem_val[i + j]) begin
+                                        match = 0;
+                                        j = CMP_WORDS; // break inner
+                                    end
+                                    j = j + 1;
+                                end
+                                if (match) begin
+                                    found = 1;
+                                    best_offset = k;
+                                    k = EXPECT_DEPTH; // break k loop
+                                    i = exp_mem_count; // break outer i loop
+                                end
+                                k = k + 1;
+                            end
+                        end
+                        i = i + run_len;
+                    end
+
+                    if (found) begin
+                        $display("[AutoCompare] PASS: found %0d consecutive words matching expected starting at DataMemory offset %0d (word index).", CMP_WORDS, best_offset);
+                    end else begin
+                        $display("[AutoCompare] FAIL: no matching %0d-word window found in DataMemory (checked first %0d words).", CMP_WORDS, EXPECT_DEPTH);
+                        // optional debug: print first few expected vs memory at offset 0
+                        if (1) begin
+                            $display("[AutoCompare] Dump: first %0d expected entries:", (CMP_WORDS<exp_mem_count?CMP_WORDS:exp_mem_count));
+                            for (i = 0; i < (CMP_WORDS<exp_mem_count?CMP_WORDS:exp_mem_count); i = i + 1) begin
+                                $display("  exp[%0d] addr_word=%h val=%h", i, exp_mem_addr[i], exp_mem_val[i]);
+                            end
+                            $display("[AutoCompare] Dump: DataMemory first %0d words:", CMP_WORDS);
+                            for (i = 0; i < CMP_WORDS && i < EXPECT_DEPTH; i = i + 1) begin
+                                $display("  mem[%0d]=%h", i, dut.data_memory.memory[i]);
+                            end
+                        end
                     end
                 end
                 $finish;
