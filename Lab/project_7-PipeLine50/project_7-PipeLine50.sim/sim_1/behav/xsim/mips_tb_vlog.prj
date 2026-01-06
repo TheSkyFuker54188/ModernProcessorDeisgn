@@ -1,0 +1,23 @@
+# compile verilog/system verilog design source files
+verilog xil_defaultlib  --include "../../../../src" \
+"../../../../src/ArithmeticLogicUnit.v" \
+"../../../../src/Controller.v" \
+"../../../../src/DataMemory.v" \
+"../../../../src/ForwardingUnit.v" \
+"../../../../src/HazardDetectionUnit.v" \
+"../../../../src/InstructionMemory.v" \
+"../../../../src/ProgramCounter_simple.v" \
+"../../../../src/RegisterFile.v" \
+"../../../../src/TopLevel.v" \
+
+sv xil_defaultlib  --include "../../../../src" \
+"../../../../src/MultiplicationDivisionUnit.sv" \
+
+verilog xil_defaultlib  --include "../../../../src" \
+"../../../../mips_tb.v" \
+
+# compile glbl module
+verilog xil_defaultlib "glbl.v"
+
+# Do not sort compile order
+nosort
