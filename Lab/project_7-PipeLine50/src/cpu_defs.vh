@@ -1,3 +1,5 @@
+`timescale 1us/1us
+
 `ifndef CPU_DEFS_VH
 `define CPU_DEFS_VH
 

@@ -17,11 +17,7 @@ module InstructionMemory #(
             memory[i] = 32'b0;
         end
         if (INIT_FILE != "") begin
-            $display("Loading instruction memory from %s", INIT_FILE);
             $readmemh(INIT_FILE, memory);
-            $display("IMEM[0] = %h", memory[0]);
-            $display("IMEM[1] = %h", memory[1]);
-            $display("IMEM[2] = %h", memory[2]);
         end
     end
 

@@ -1,0 +1,6 @@
+{
+    "compiler": "vivado",
+    "test_file": "./project_7-PipeLine50.xpr",
+    "data_path": "./src/DataMemory.v",
+    "code_path": "./src/InstructionMemory.v"
+}
