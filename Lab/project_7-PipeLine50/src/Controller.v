@@ -1,4 +1,4 @@
-`timescale 1ns/1ps
+`timescale 1us/1us
 `include "cpu_defs.vh"
 
 module Controller (
@@ -358,6 +358,7 @@ module Controller (
             OPC_LB: begin
                 reg_dst_sel = `REG_DST_RT;
                 reg_write = 1'b1;
+                reg_write_data_sel = `WRITE_SRC_MEM;
                 alu_src = 1'b1;
                 mem_read = 1'b1;
                 uses_rs = 1'b1;
@@ -367,6 +368,7 @@ module Controller (
             OPC_LH: begin
                 reg_dst_sel = `REG_DST_RT;
                 reg_write = 1'b1;
+                reg_write_data_sel = `WRITE_SRC_MEM;
                 alu_src = 1'b1;
                 mem_read = 1'b1;
                 uses_rs = 1'b1;
@@ -376,6 +378,7 @@ module Controller (
             OPC_LW: begin
                 reg_dst_sel = `REG_DST_RT;
                 reg_write = 1'b1;
+                reg_write_data_sel = `WRITE_SRC_MEM;
                 alu_src = 1'b1;
                 mem_read = 1'b1;
                 uses_rs = 1'b1;
@@ -385,6 +388,7 @@ module Controller (
             OPC_LBU: begin
                 reg_dst_sel = `REG_DST_RT;
                 reg_write = 1'b1;
+                reg_write_data_sel = `WRITE_SRC_MEM;
                 alu_src = 1'b1;
                 mem_read = 1'b1;
                 uses_rs = 1'b1;
@@ -394,6 +398,7 @@ module Controller (
             OPC_LHU: begin
                 reg_dst_sel = `REG_DST_RT;
                 reg_write = 1'b1;
+                reg_write_data_sel = `WRITE_SRC_MEM;
                 alu_src = 1'b1;
                 mem_read = 1'b1;
                 uses_rs = 1'b1;

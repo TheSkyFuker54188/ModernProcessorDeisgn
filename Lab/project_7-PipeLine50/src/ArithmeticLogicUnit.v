@@ -1,4 +1,4 @@
-`timescale 1ns/1ps
+`timescale 1us/1us
 `include "cpu_defs.vh"
 
 module ArithmeticLogicUnit (

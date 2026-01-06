@@ -1,4 +1,4 @@
-`timescale 1ns/1ps
+`timescale 1us/1us
 module HazardDetectionUnit (
     input wire id_use_rs,
     input wire id_use_rt,

@@ -1,4 +1,4 @@
-`timescale 1ns/1ps
+`timescale 1us/1us
 `include "cpu_defs.vh"
 
 module TopLevel (
@@ -6,7 +6,6 @@ module TopLevel (
     input wire clock,
     output reg halted
 );
-    localparam IMEM_INIT_FILE = "D:/PROGRAMMING/ModernProcessorDeisgn/Lab/project_7-PipeLine50/test_50.txt";
     // Program counter and IF stage --------------------------------------------------
     wire [31:0] pc_current;
     wire [31:0] pc_plus4 = pc_current + 32'd4;
@@ -31,24 +30,12 @@ module TopLevel (
 
     wire [31:0] instructionF;
     InstructionMemory #(
-        .INIT_FILE(IMEM_INIT_FILE),
         .BASE_ADDR(32'h00003000),
         .MEM_DEPTH(4096)
     ) instruction_memory (
         .address(pc_current),
         .instruction(instructionF)
     );
-
-    // Debug: print fetched instruction
-    always @(posedge clock) begin
-        if (!reset) begin
-            // Only print if not NOP to reduce spam, or if it's a jump/branch
-            if (instructionF != 0) begin
-                $display("[FETCH] PC=%h INSTR=%h stallF=%b stallD=%b flushE=%b redirect=%b pc_next=%h", 
-                         pc_current, instructionF, stallF, stallD, flushE, redirect_validE, pc_next);
-            end
-        end
-    end
 
     // IF/ID pipeline register ------------------------------------------------------
     reg [31:0] if_id_pc;
@@ -141,6 +128,21 @@ module TopLevel (
     wire [1:0] reg_dstD = (reg_dst_selD == `REG_DST_RD) ? 2'b01 :
                           (reg_dst_selD == `REG_DST_RA) ? 2'b10 : 2'b00;
 
+    // Syscall argument reading in ID stage (with full forwarding from MEM, WB)
+    // $v0 = register 2, $a0 = register 4
+    // Need to check forwarding from pipeline stages where result is available
+    // Priority: MEM (ex_mem) > WB (mem_wb) > Register File
+    // Note: Cannot forward from ID_EX because ALU result is not yet computed
+    // The forwarding at later stages (EX, MEM) will catch those cases
+    wire [31:0] syscall_v0_D = 
+        (ex_mem_reg_write && ex_mem_dest == 5'd2) ? ex_mem_alu_result :
+        (mem_wb_reg_write && mem_wb_dest == 5'd2) ? reg_write_dataW :
+        register_file.registers[2];
+    wire [31:0] syscall_a0_D = 
+        (ex_mem_reg_write && ex_mem_dest == 5'd4) ? ex_mem_alu_result :
+        (mem_wb_reg_write && mem_wb_dest == 5'd4) ? reg_write_dataW :
+        register_file.registers[4];
+
     // Hazard Detection
     wire hazard_stallF, hazard_stallD, hazard_flushE;
     
@@ -181,6 +183,8 @@ module TopLevel (
     reg id_ex_jump;
     reg id_ex_jump_reg;
     reg id_ex_is_syscall;
+    reg [31:0] id_ex_syscall_v0;  // Syscall $v0 value captured in ID
+    reg [31:0] id_ex_syscall_a0;  // Syscall $a0 value captured in ID
     reg [3:0] id_ex_alu_control;
     reg [2:0] id_ex_mdu_op;
     reg id_ex_mdu_start;
@@ -210,7 +214,9 @@ module TopLevel (
 
     assign pc_enable = !stallF && !halted;
     assign if_id_write_enable = !stallD && !halted;
-    assign flush_if_id = redirect_validE || (is_syscallD && !halted && !stallD);
+    // Only flush IF/ID on branch/jump redirects, NOT on syscall
+    // Syscall should proceed normally through the pipeline
+    assign flush_if_id = redirect_validE;
 
     // IF/ID Update
     always @(posedge clock or posedge reset) begin
@@ -271,6 +277,8 @@ module TopLevel (
             id_ex_jump <= jumpD;
             id_ex_jump_reg <= jump_regD;
             id_ex_is_syscall <= is_syscallD;
+            id_ex_syscall_v0 <= syscall_v0_D;
+            id_ex_syscall_a0 <= syscall_a0_D;
             id_ex_alu_control <= alu_controlD;
             id_ex_mem_to_reg <= (write_src_selD == `WRITE_SRC_MEM);
             id_ex_mdu_op <= mdu_opD;
@@ -346,20 +354,6 @@ module TopLevel (
         endcase
     end
 
-    // Debug Branch
-    always @(posedge clock) begin
-        if (id_ex_branch && !stallE) begin
-            $display("[BRANCH_DEBUG] PC=%h Op=%d A=%h B=%h Taken=%b", 
-                     id_ex_pc, id_ex_branch_op, forwardA_value, forwardB_value, branch_takenE);
-        end
-        if (jump_takenE) begin
-            $display("[JUMP_DEBUG] PC=%h Target=%h", id_ex_pc, id_ex_jump_target);
-        end
-        if (jumpD) begin
-             $display("[ID_JUMP] PC=%h TargetD=%h Instr=%h", if_id_pc, jump_targetD, if_id_instr);
-        end
-    end
-
     assign branch_takenE = id_ex_branch && branch_cond;
     
     wire [31:0] branch_targetE = id_ex_pc4 + (id_ex_imm << 2);
@@ -382,7 +376,21 @@ module TopLevel (
     reg ex_mem_mem_to_reg;
     reg [1:0] ex_mem_write_src_sel;
     reg ex_mem_is_syscall;
+    reg [31:0] ex_mem_syscall_v0;
+    reg [31:0] ex_mem_syscall_a0;
     reg [2:0] ex_mem_mem_size;
+
+    // Syscall argument forwarding in EX stage
+    // When syscall is in EX stage, forward from EX_MEM and MEM_WB
+    // The instruction that was in ID_EX when syscall was in ID is now in EX_MEM
+    wire [31:0] syscall_v0_E = 
+        (ex_mem_reg_write && ex_mem_dest == 5'd2) ? ex_mem_alu_result :
+        (mem_wb_reg_write && mem_wb_dest == 5'd2) ? reg_write_dataW :
+        id_ex_syscall_v0;
+    wire [31:0] syscall_a0_E = 
+        (ex_mem_reg_write && ex_mem_dest == 5'd4) ? ex_mem_alu_result :
+        (mem_wb_reg_write && mem_wb_dest == 5'd4) ? reg_write_dataW :
+        id_ex_syscall_a0;
 
     always @(posedge clock or posedge reset) begin
         if (reset) begin
@@ -407,6 +415,8 @@ module TopLevel (
             ex_mem_alu_result <= alu_resultE;
             ex_mem_write_data <= forwardB_value;
             ex_mem_is_syscall <= id_ex_is_syscall;
+            ex_mem_syscall_v0 <= syscall_v0_E;
+            ex_mem_syscall_a0 <= syscall_a0_E;
             ex_mem_mem_size <= id_ex_mem_size;
         end
     end
@@ -434,6 +444,16 @@ module TopLevel (
     reg [1:0] mem_wb_write_src_sel;
     reg mem_wb_mem_to_reg;
     reg mem_wb_is_syscall;
+    reg [31:0] mem_wb_syscall_v0;
+    reg [31:0] mem_wb_syscall_a0;
+
+    // Syscall argument forwarding in MEM stage
+    wire [31:0] syscall_v0_M = 
+        (mem_wb_reg_write && mem_wb_dest == 5'd2) ? reg_write_dataW :
+        ex_mem_syscall_v0;
+    wire [31:0] syscall_a0_M = 
+        (mem_wb_reg_write && mem_wb_dest == 5'd4) ? reg_write_dataW :
+        ex_mem_syscall_a0;
 
     always @(posedge clock or posedge reset) begin
         if (reset) begin
@@ -449,6 +469,8 @@ module TopLevel (
             mem_wb_alu_result <= ex_mem_alu_result;
             mem_wb_mem_read_data <= data_memory_read_data;
             mem_wb_is_syscall <= ex_mem_is_syscall;
+            mem_wb_syscall_v0 <= syscall_v0_M;
+            mem_wb_syscall_a0 <= syscall_a0_M;
         end
     end
 
@@ -464,35 +486,19 @@ module TopLevel (
         reg_writeW = mem_wb_reg_write;
     end
 
-    // Halt monitor and Syscall handling
+    // Syscall handling
     always @(posedge clock or posedge reset) begin
         if (reset) begin
             halted <= 1'b0;
         end else if (mem_wb_is_syscall && !halted) begin
-            // Check $v0 (register 2) value for syscall type
-            // We need to read the value of $v0 from the register file or forwarding
-            // Since we are in WB stage, the value of $v0 might be what was just written, 
-            // or what is currently in the register file.
-            // However, syscall convention puts arguments in $v0/$a0 BEFORE syscall.
-            // So we should look at the value of $v0 (register 2) and $a0 (register 4).
-            
-            // NOTE: In a real pipeline, we should have read these values in ID stage and passed them down.
-            // But for simplicity, we can peek into the register file or use the values available.
-            // A robust way is to read register 2 and 4 directly from the register file instance here.
-            // But we can't easily access internal signals of submodules.
-            
-            // Alternative: The test code sets $v0 and $a0 before syscall.
-            // Those instructions (ORI) have completed WB.
-            // So register_file.registers[2] should hold the correct value.
-            
-            if (register_file.registers[2] == 32'd10) begin // Exit
+            if (mem_wb_syscall_v0 == 32'd10) begin // Exit
                 halted <= 1'b1;
                 $display("\n==== Simulation finished via syscall 10 (Exit) at PC %h ====", mem_wb_pc);
                 $finish;
-            end else if (register_file.registers[2] == 32'd1) begin // Print Int
-                $display("\n[SYSCALL] Print Int: %0d", register_file.registers[4]);
+            end else if (mem_wb_syscall_v0 == 32'd1) begin // Print Int
+                $display("[SYSCALL] Print Int: %0d", mem_wb_syscall_a0);
             end else begin
-                $display("\n[SYSCALL] Unknown syscall %0d at PC %h", register_file.registers[2], mem_wb_pc);
+                $display("[SYSCALL] Unknown syscall %0d at PC %h", mem_wb_syscall_v0, mem_wb_pc);
             end
         end
     end
@@ -505,18 +511,6 @@ module TopLevel (
             id_ex_mem_write <= 1'b0;
             id_ex_branch <= 1'b0;
             id_ex_jump <= 1'b0;
-        end
-    end
-
-    // Debug: Check memory loading
-    initial begin
-        #10;
-        $display("DEBUG: Memory[0] (at 0x3000) = %h", instruction_memory.memory[0]);
-        $display("DEBUG: Memory[1] (at 0x3004) = %h", instruction_memory.memory[1]);
-        $display("DEBUG: Current PC = %h", pc_current);
-        if (instruction_memory.memory[0] == 32'b0) begin
-            $display("ERROR: Instruction memory appears empty! Check file path: %s", IMEM_INIT_FILE);
-            $stop; // Stop simulation immediately if memory is empty
         end
     end
 

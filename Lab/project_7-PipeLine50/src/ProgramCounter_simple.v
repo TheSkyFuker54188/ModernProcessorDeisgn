@@ -1,4 +1,4 @@
-`timescale 1ns/1ps
+`timescale 1us/1us
 module ProgramCounter (
     input wire clock,
     input wire reset,

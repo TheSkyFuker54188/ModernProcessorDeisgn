@@ -1,4 +1,4 @@
-`timescale 1ns/1ps
+`timescale 1us/1us
 module ForwardingUnit (
     input wire ex_mem_reg_write,
     input wire ex_mem_mem_to_reg,
